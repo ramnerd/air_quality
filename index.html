@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Air Quality Analysis</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0 20px;
+      background-color: #f5f5f5;
+    }
+
+    header {
+      background-color: #2c3e50;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    section {
+      margin: 30px 0;
+    }
+
+    h2 {
+      border-bottom: 2px solid #ccc;
+      padding-bottom: 5px;
+    }
+
+    .plot-card {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 20px;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .plot-card img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    pre {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 20px;
+      overflow-x: auto;
+      border-radius: 10px;
+    }
+
+    .btn {
+      display: inline-block;
+      background-color: #2ecc71;
+      color: white;
+      padding: 10px 15px;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+
+    footer {
+      text-align: center;
+      margin: 40px 0 20px;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🌫️ Air Quality Analysis in India</h1>
+    <p>A Data Science Project by Shankarraman</p>
+  </header>
+
+  <section id="overview">
+    <h2>📋 Overview</h2>
+    <p>This project analyzes air quality data collected from various Indian cities. It includes EDA, temporal analysis, state-wise comparisons, and pollutant correlations.</p>
+  </section>
+
+  <section id="findings">
+    <h2>📈 Key Insights</h2>
+    <ul>
+      <li>Missing pollution values handled with column-wise mean imputation.</li>
+      <li>Residential & Industrial areas show higher pollution levels.</li>
+      <li>Nitrogen Dioxide is highest in urban-industrial regions.</li>
+      <li>Pollution levels peaked around certain years/months based on sampling trends.</li>
+    </ul>
+  </section>
+
+  <section id="plots">
+    <h2>📊 Visualizations</h2>
+    <div class="plot-card">
+      <img src="air/area.png" alt="Pollution by Area Category" />
+      <p><strong>Pollution by Area Category</strong></p>
+    </div>
+    <div class="plot-card">
+      <img src="air/state.png" alt="State-wise Pollution"/>
+      <p><strong>State-wise Average SO2 and NO2</strong></p>
+    </div>
+    <div class="plot-card">
+      <img src="air/corr.png" alt="Correlation Matrix" />
+      <p><strong>Pollutant Correlation Matrix</strong></p>
+    </div>
+  </section>
+
+  <section id="code">
+    <h2>💻 Code Snippet</h2>
+    <button onclick="toggleCode()">🔽 Toggle Python Code</button>
+    <pre id="codeBlock" style="display: none;"><code>
+# ============================== #
+#   📦 Import Libraries          #
+# ============================== #
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+import warnings
+warnings.filterwarnings("ignore")
+
+# ======================================== #
+#   📂 Load Dataset                        #
+# ======================================== #
+df = pd.read_csv("data/data.csv", encoding='latin1')
+
+# Rename for clarity
+df = df.rename(columns={
+    'state': 'State',
+    'location': 'City',
+    'type': 'Area_Category',
+    'so2': 'Sulphur_Dioxide',
+    'no2': 'Nitrogen_Dioxide',
+    'rspm': 'RSPM',
+    'spm': 'SPM'
+})
+
+# Fill missing
+for col in ['Sulphur_Dioxide', 'Nitrogen_Dioxide', 'RSPM', 'SPM']:
+    df[col] = df[col].fillna(df[col].mean())
+
+# Group by Area Category
+area_pollution = df.groupby('Area_Category')[
+    ['Sulphur_Dioxide', 'Nitrogen_Dioxide', 'RSPM', 'SPM']].mean()
+area_pollution.plot(kind='bar')
+plt.show()
+
+# State-wise Pollution
+state_pollution = df.groupby('State')[
+    ['Sulphur_Dioxide', 'Nitrogen_Dioxide']].mean()
+state_pollution.plot(kind='bar')
+plt.show()
+
+# Correlation Matrix
+corr = df[['Sulphur_Dioxide', 'Nitrogen_Dioxide', 'RSPM', 'SPM']].corr()
+sns.heatmap(corr, annot=True, cmap='coolwarm')
+plt.show()
+    </code></pre>
+  </section>
+
+  <section id="download">
+    <h2>📁 Dataset</h2>
+    <a href="data/data.csv" download class="btn">⬇️ Download Data</a>
+  </section>
+
+  <footer>
+    <p>© 2025 Shankarraman | Made with ❤️ and Python</p>
+  </footer>
+
+  <script>
+    function toggleCode() {
+      const codeBlock = document.getElementById("codeBlock");
+      codeBlock.style.display = (codeBlock.style.display === "none") ? "block" : "none";
+    }
+  </script>
+</body>
+</html>
